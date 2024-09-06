@@ -2,32 +2,7 @@ import { usePlayerStore } from "@/store/playerStore"
 import { useEffect, useRef, useState } from "react"
 import { Slider } from "./Slider"
 import { VolumeControl } from "./VolumeControl"
-
-export const Pause = ({ className }) => (
-  <svg
-    className={className}
-    role="img"
-    height="16"
-    width="16"
-    aria-hidden="true"
-    viewBox="0 0 16 16"
-  >
-    <path d="M2.7 1a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7H2.7zm8 0a.7.7 0 0 0-.7.7v12.6a.7.7 0 0 0 .7.7h2.6a.7.7 0 0 0 .7-.7V1.7a.7.7 0 0 0-.7-.7h-2.6z"></path>
-  </svg>
-)
-
-export const Play = ({ className }) => (
-  <svg
-    className={className}
-    role="img"
-    height="16"
-    width="16"
-    aria-hidden="true"
-    viewBox="0 0 16 16"
-  >
-    <path d="M3 1.713a.7.7 0 0 1 1.05-.607l10.89 6.288a.7.7 0 0 1 0 1.212L4.05 14.894A.7.7 0 0 1 3 14.288V1.713z"></path>
-  </svg>
-)
+import { Play, Pause, Prev, Next } from "../icons/MusicPlayer"
 
 const CurrentSong = ({ image, title, artists }) => {
   return (
@@ -94,9 +69,8 @@ const SongControl = ({ audio }) => {
 }
 
 export function Player() {
-  const { currentMusic, isPlaying, setIsPlaying, volume } = usePlayerStore(
-    (state) => state
-  )
+  const { currentMusic, setCurrentMusic, isPlaying, setIsPlaying, volume } =
+    usePlayerStore((state) => state)
   const audioRef = useRef()
 
   useEffect(() => {
@@ -117,12 +91,36 @@ export function Player() {
     }
   }, [currentMusic])
 
-  useEffect(() => {
-    audioRef.current.src = `/music/1/01.mp3`
-  }, [])
+  // useEffect(() => {
+  //   audioRef.current.src = `/music/1/01.mp3`
+  // }, [])
 
   const handleClick = () => {
     setIsPlaying(!isPlaying)
+  }
+
+  const getSongIndex = (id) => {
+    return currentMusic.songs.findIndex((e) => e.id === id) ?? -1
+  }
+
+  const onNextSong = () => {
+    const { song, playlist, songs } = currentMusic
+    const index = getSongIndex(song.id)
+    if (index > -1 && index + 1 < songs.length) {
+      setIsPlaying(false)
+      setCurrentMusic({ songs, playlist, song: songs[index + 1] })
+      setIsPlaying(true)
+    }
+  }
+
+  const onPrevSong = () => {
+    const { song, playlist, songs } = currentMusic
+    const index = getSongIndex(song.id)
+    if (index > -1 && index > 0) {
+      setIsPlaying(false)
+      setCurrentMusic({ songs, playlist, song: songs[index - 1] })
+      setIsPlaying(true)
+    }
   }
 
   return (
@@ -132,9 +130,24 @@ export function Player() {
       </div>
       <div className="grid place-content-center gap-4 flex-1">
         <div className="flex justify-center flex-col items-center">
-          <button className="bg-white rounded-full p-2" onClick={handleClick}>
+          <div className="flex gap-8">
+            <button onClick={onPrevSong} title="Prev">
+              <Prev />
+            </button>
+            <button
+              title="Play / Pause"
+              onClick={handleClick}
+              className="bg-white rounded-full p-2"
+            >
+              {isPlaying ? <Pause /> : <Play />}
+            </button>
+            <button onClick={onNextSong} title="Next">
+              <Next />
+            </button>
+          </div>
+          {/* <button className="bg-white rounded-full p-2" onClick={handleClick}>
             {isPlaying ? <Pause /> : <Play />}
-          </button>
+          </button> */}
           <SongControl audio={audioRef} />
           <audio ref={audioRef} />
         </div>
