@@ -99,6 +99,8 @@ export function Player() {
     setIsPlaying(!isPlaying)
   }
 
+  const isSongLoader = !!currentMusic.song
+
   const getSongIndex = (id) => {
     return currentMusic.songs.findIndex((e) => e.id === id) ?? -1
   }
@@ -131,17 +133,30 @@ export function Player() {
       <div className="grid place-content-center gap-4 flex-1">
         <div className="flex justify-center flex-col items-center">
           <div className="flex gap-8">
-            <button onClick={onPrevSong} title="Prev">
+            <button
+              onClick={onPrevSong}
+              title="Prev"
+              disabled={!isSongLoader}
+              className={`${!isSongLoader ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
               <Prev />
             </button>
+
             <button
               title="Play / Pause"
               onClick={handleClick}
-              className="bg-white rounded-full p-2"
+              disabled={!isSongLoader}
+              className={`bg-white rounded-full p-2 ${!isSongLoader ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {isPlaying ? <Pause /> : <Play />}
             </button>
-            <button onClick={onNextSong} title="Next">
+
+            <button
+              onClick={onNextSong}
+              title="Next"
+              disabled={!isSongLoader}
+              className={`${!isSongLoader ? "opacity-50 cursor-not-allowed" : ""}`}
+            >
               <Next />
             </button>
           </div>
